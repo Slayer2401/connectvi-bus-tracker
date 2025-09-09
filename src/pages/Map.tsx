@@ -7,10 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, MapPin, Navigation } from "lucide-react";
 import { busStops, customBusRoutes, liveBuses, Bus } from "@/data/busData";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 // Custom icon for the live bus markers
 const busIcon = new Icon({
-  iconUrl: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1idXMiPjxwYXRoIGQ9Ik04IDhINEMyLjkgOCAyIDkgMiAxMHYxMGEyIDIgMCAwIDAgMiAyaDEwYTIgMiAwIDAgMCAyLTJWMTAwIDAgMCAwIDE4IDEwdi0yaC00WiIgLz48cGF0aCBkPSJNMTggMjBoNGExIDEgMCAwIDAgMS0xdi0zYTEgMSAwIDAgMC0xLTFoLTRaIiAvPjxjaXJjbGUgY3g9IjYiIGN5PSIxOCIgcj0iMiIgLz48Y2lyY2xlIGN4PSIxOCIgY3k9IjE4IiByPSIyIiAvPjxwYXRoIGQ9Ik00IDEySDIwIiAvPjwvc3ZnPg==',
+  iconUrl: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1idXMiPjxwYXRoIGQ9Ik04IDhINEMyLjkgOCAyIDkgMiAxMHYxMGEyIDIgMCAwIDAgMiAyaDEwYTIgMiAwIDAgMCAyLTJWMTAwIDAgMCAwIDE4IDEwdi0yaC00WiIgLz48cGFhdGggZD0iTTE4IDIwaDRhMSAxIDAgMCAwIDEtMXYtM2ExIDEgMCAwIDAtMS0xaC00WiIgLz48Y2lyY2xlIGN4PSI2IiBjeT0iMTgiIHI9IjIiIC8+PGNpcmNsZSBjeD0iMTgiIGN5PSIxOCIgcj0iMiIgLz48cGFhdGggZD0iTSA0IDEySDIwIiAvPjwvc3ZnPg==',
   iconSize: [32, 32],
   iconAnchor: [16, 16],
   popupAnchor: [0, -16],
@@ -18,7 +19,11 @@ const busIcon = new Icon({
 });
 
 const tileLayers = {
-  default: {
+  light: {
+    url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  },
+  dark: {
     url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
   },
@@ -32,10 +37,11 @@ const tileLayers = {
 const Map = () => {
   const [searchParams] = useSearchParams();
   const routeFilter = searchParams.get("route");
+  const fromStop = searchParams.get("from");
+
   const [buses, setBuses] = useState<Bus[]>(liveBuses);
-  const [mapType, setMapType] = useState<"default" | "satellite">("default");
+  const [mapType, setMapType] = useState<"light" | "dark" | "satellite">("light");
   
-  // Filter data based on route
   const selectedRoute = routeFilter 
     ? customBusRoutes.find(route => route.id === routeFilter)
     : null;
@@ -44,14 +50,6 @@ const Map = () => {
     ? buses.filter(bus => bus.routeId === routeFilter)
     : buses;
     
-  const filteredStops = routeFilter && selectedRoute
-    ? busStops.filter(stop => 
-        stop.name === selectedRoute.startPoint || 
-        stop.name === selectedRoute.endPoint || 
-        selectedRoute.intermediateStops.includes(stop.name)
-      )
-    : busStops;
-
   const getRouteInfo = (routeId: string) => {
     return customBusRoutes.find(route => route.id === routeId);
   };
@@ -79,7 +77,7 @@ const Map = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-4 bg-gradient-button bg-clip-text text-transparent">
-            {selectedRoute ? `${selectedRoute.name} - Live Map` : "Live Bus Tracking"}
+            {selectedRoute ? `${fromStop ? `${fromStop} - ${selectedRoute.endPoint}` : selectedRoute.name} - Live Map` : "Live Bus Tracking"}
           </h1>
           <p className="text-muted-foreground">
             Real-time bus positions updated every 5 seconds
@@ -87,7 +85,7 @@ const Map = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Live Buses Panel */}
+          {/* Side Panel */}
           <div className="lg:col-span-1 space-y-4">
             <Card className="bg-gradient-card border-border shadow-card">
               <CardHeader>
@@ -96,8 +94,8 @@ const Map = () => {
                   Live Buses ({filteredBuses.length})
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3 max-h-[500px] overflow-y-auto">
-                {filteredBuses.map((bus) => {
+              <CardContent className="space-y-3 max-h-[250px] overflow-y-auto">
+                {filteredBuses.length > 0 ? filteredBuses.map((bus) => {
                   const route = getRouteInfo(bus.routeId);
                   const nextStop = busStops.find(stop => stop.id === bus.nextStop);
                   return (
@@ -109,9 +107,6 @@ const Map = () => {
                         >
                           {route?.name}
                         </Badge>
-                        <span className="text-xs text-muted-foreground">
-                          {bus.speed.toFixed(0)} km/h
-                        </span>
                       </div>
                       <div className="text-sm space-y-1">
                         <div className="flex items-center text-muted-foreground">
@@ -125,9 +120,40 @@ const Map = () => {
                       </div>
                     </div>
                   );
-                })}
+                }) : <p className="text-muted-foreground text-sm">No live buses on this route.</p>}
               </CardContent>
             </Card>
+
+            {selectedRoute && (
+              <Card className="bg-gradient-card border-border shadow-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Clock className="w-5 h-5 mr-2" />
+                    Bus Schedule
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="max-h-[250px] overflow-y-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>From</TableHead>
+                        <TableHead>Departure</TableHead>
+                        <TableHead>Arrival</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {selectedRoute.timings.map((timing, index) => (
+                        <TableRow key={index}>
+                          <TableCell>{timing.from}</TableCell>
+                          <TableCell>{timing.departure}</TableCell>
+                          <TableCell>{timing.arrival}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Map */}
@@ -135,13 +161,14 @@ const Map = () => {
              <div className="mb-4">
               <ToggleGroup 
                 type="single" 
-                defaultValue="default"
-                onValueChange={(value: "default" | "satellite") => {
+                defaultValue="light"
+                onValueChange={(value: "light" | "dark" | "satellite") => {
                   if (value) setMapType(value);
                 }}
                 className="justify-start"
               >
-                <ToggleGroupItem value="default">Default</ToggleGroupItem>
+                <ToggleGroupItem value="light">Light</ToggleGroupItem>
+                <ToggleGroupItem value="dark">Dark</ToggleGroupItem>
                 <ToggleGroupItem value="satellite">Satellite</ToggleGroupItem>
               </ToggleGroup>
             </div>
@@ -149,12 +176,13 @@ const Map = () => {
               <div className="h-[600px] relative">
                 <MapContainer center={mapCenter} zoom={13} style={{ height: "100%", width: "100%" }}>
                   <TileLayer
+                    key={mapType} // Add key to force re-render on map type change
                     url={currentTileLayer.url}
                     attribution={currentTileLayer.attribution}
                   />
                   
-                  {/* Display Stops */}
-                  {filteredStops.map(stop => (
+                  {/* Display All Stops */}
+                  {busStops.map(stop => (
                     <Marker key={stop.id} position={[stop.lat, stop.lng]}>
                       <Popup>{stop.name}</Popup>
                     </Marker>
@@ -162,13 +190,15 @@ const Map = () => {
 
                   {/* Display Routes */}
                   {(selectedRoute ? [selectedRoute] : customBusRoutes).map(route => {
-                    const positions = [
-                      busStops.find(s => s.name === route.startPoint),
-                      ...route.intermediateStops.map(stopName => busStops.find(s => s.name === stopName)),
-                      busStops.find(s => s.name === route.endPoint)
-                    ]
-                    .filter(Boolean)
-                    .map(stop => [stop!.lat, stop!.lng] as LatLngExpression);
+                    const allStops = [route.startPoint, ...route.intermediateStops, route.endPoint];
+                    const startIndex = fromStop ? allStops.indexOf(fromStop) : 0;
+                    
+                    const routeSegment = startIndex !== -1 ? allStops.slice(startIndex) : allStops;
+                    
+                    const positions = routeSegment
+                      .map(stopName => busStops.find(s => s.name === stopName))
+                      .filter(Boolean)
+                      .map(stop => [stop!.lat, stop!.lng] as LatLngExpression);
 
                     return <Polyline key={route.id} positions={positions} color={route.color} />;
                   })}
@@ -177,8 +207,7 @@ const Map = () => {
                   {filteredBuses.map(bus => (
                     <Marker key={bus.id} position={[bus.lat, bus.lng]} icon={busIcon}>
                       <Popup>
-                        <strong>{getRouteInfo(bus.routeId)?.name}</strong><br/>
-                        Speed: {bus.speed.toFixed(0)} km/h
+                        <strong>{getRouteInfo(bus.routeId)?.name}</strong>
                       </Popup>
                     </Marker>
                   ))}

@@ -15,6 +15,7 @@ export interface BusRoute {
   intermediateStops: string[];
   operatingHours: string;
   frequency: string; 
+  timings: { from: string; to: string; departure: string; arrival: string }[];
 }
 
 export interface Bus {
@@ -54,6 +55,18 @@ export const customBusRoutes: BusRoute[] = [
     intermediateStops: ["Rajkamal", "Rajapeth", "Nawathe", "Sai Nagar"],
     operatingHours: "06:50 AM - 06:25 PM",
     frequency: "Varies",
+    timings: [
+      { from: "Amravati Bus Stand", to: "Old Town, Badnera", departure: "06:50 AM", arrival: "07:15 AM" },
+      { from: "Amravati Bus Stand", to: "Old Town, Badnera", departure: "06:55 AM", arrival: "07:20 AM" },
+      { from: "Amravati Bus Stand", to: "Old Town, Badnera", departure: "07:00 AM", arrival: "07:25 AM" },
+      { from: "Amravati Bus Stand", to: "Old Town, Badnera", departure: "10:00 AM", arrival: "10:30 AM" },
+      { from: "Amravati Bus Stand", to: "Old Town, Badnera", departure: "10:15 AM", arrival: "10:45 AM" },
+      { from: "Old Town, Badnera", to: "Amravati Bus Stand", departure: "02:15 PM", arrival: "02:40 PM" },
+      { from: "Old Town, Badnera", to: "Amravati Bus Stand", departure: "02:25 PM", arrival: "02:50 PM" },
+      { from: "Old Town, Badnera", to: "Amravati Bus Stand", departure: "02:45 PM", arrival: "03:10 PM" },
+      { from: "Old Town, Badnera", to: "Amravati Bus Stand", departure: "05:35 PM", arrival: "06:05 PM" },
+      { from: "Old Town, Badnera", to: "Amravati Bus Stand", departure: "05:55 PM", arrival: "06:25 PM" },
+    ]
   },
   {
     id: "route-2", 
@@ -64,6 +77,14 @@ export const customBusRoutes: BusRoute[] = [
     intermediateStops: ["Biyani Sqr", "Amt Bus Stand", "Rajkamal", "Sai Nagar"],
     operatingHours: "06:35 AM - 06:05 PM",
     frequency: "Varies",
+    timings: [
+      { from: "Amravati University", to: "Old Town, Badnera", departure: "06:35 AM", arrival: "07:20 AM" },
+      { from: "Amravati University", to: "Old Town, Badnera", departure: "09:30 AM", arrival: "10:15 AM" },
+      { from: "Amravati University", to: "Old Town, Badnera", departure: "09:45 AM", arrival: "10:30 AM" },
+      { from: "Old Town, Badnera", to: "Amravati University", departure: "02:05 PM", arrival: "02:50 PM" },
+      { from: "Old Town, Badnera", to: "Amravati University", departure: "02:35 PM", arrival: "03:20 PM" },
+      { from: "Old Town, Badnera", to: "Amravati University", departure: "05:20 PM", arrival: "06:05 PM" },
+    ]
   },
   {
     id: "route-3",
@@ -74,6 +95,16 @@ export const customBusRoutes: BusRoute[] = [
     intermediateStops: ["Panchawati", "Irwin Sq.", "Rajkamal", "Sai Nagar"],
     operatingHours: "06:30 AM - 06:25 PM",
     frequency: "Varies",
+    timings: [
+      { from: "Navsari", to: "Old Town, Badnera", departure: "06:30 AM", arrival: "07:05 AM" },
+      { from: "Navsari", to: "Old Town, Badnera", departure: "06:55 AM", arrival: "07:30 AM" },
+      { from: "Navsari", to: "Old Town, Badnera", departure: "09:45 AM", arrival: "10:20 AM" },
+      { from: "Navsari", to: "Old Town, Badnera", departure: "10:00 AM", arrival: "10:35 AM" },
+      { from: "Old Town, Badnera", to: "Navsari", departure: "02:05 PM", arrival: "02:40 PM" },
+      { from: "Old Town, Badnera", to: "Navsari", departure: "02:15 PM", arrival: "02:50 PM" },
+      { from: "Old Town, Badnera", to: "Navsari", departure: "05:35 PM", arrival: "06:10 PM" },
+      { from: "Old Town, Badnera", to: "Navsari", departure: "05:50 PM", arrival: "06:25 PM" },
+    ]
   },
   {
     id: "route-4",
@@ -84,6 +115,11 @@ export const customBusRoutes: BusRoute[] = [
     intermediateStops: [],
     operatingHours: "07:00 AM - 03:00 PM",
     frequency: "Varies (Free of Cost)",
+    timings: [
+      { from: "PRMIT&R, Badnera", to: "Old Town Badnera", departure: "07:00 AM", arrival: "07:30 AM" },
+      { from: "PRMIT&R, Badnera", to: "Old Town Badnera", departure: "10:30 AM", arrival: "11:00 AM" },
+      { from: "Old Town Badnera", to: "PRMIT&R, Badnera", departure: "02:30 PM", arrival: "03:00 PM" },
+    ]
   }
 ];
 
