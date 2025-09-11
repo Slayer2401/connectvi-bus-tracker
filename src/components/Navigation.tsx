@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { Bus, Map as MapIcon, Route, Search } from "lucide-react";
+import { Bus, Map as MapIcon, Route, Search, Languages } from "lucide-react";
 import {
   Command,
   CommandEmpty,
@@ -15,17 +16,28 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { customBusRoutes } from "@/data/busData";
 
 const Navigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+  };
+
   const handleSelectRoute = (routeId: string, customName?: string) => {
     setOpen(false);
-    const routePath = customName 
+    const routePath = customName
       ? `/map?route=${routeId}&from=${encodeURIComponent(customName.split(' - ')[0])}`
       : `/map?route=${routeId}`;
     navigate(routePath);
@@ -38,7 +50,6 @@ const Navigation = () => {
     const results = new Map<string, { id: string; name: string }>();
 
     customBusRoutes.forEach(route => {
-      // Match route name, start point, or end point
       if (
         route.name.toLowerCase().includes(lowercasedQuery) ||
         route.startPoint.toLowerCase().includes(lowercasedQuery) ||
@@ -46,8 +57,6 @@ const Navigation = () => {
       ) {
         results.set(route.id, { id: route.id, name: route.name });
       }
-
-      // Match intermediate stops
       route.intermediateStops.forEach(stop => {
         if (stop.toLowerCase().includes(lowercasedQuery)) {
           const dynamicRouteName = `${stop} - ${route.endPoint}`;
@@ -60,8 +69,8 @@ const Navigation = () => {
   };
 
   const navItems = [
-    { to: "/", icon: Bus, label: "Home" },
-    { to: "/map", icon: MapIcon, label: "Live Map" },
+    { to: "/", icon: Bus, label: t("home") },
+    { to: "/map", icon: MapIcon, label: t("live_map") },
   ];
 
   return (
@@ -83,13 +92,13 @@ const Navigation = () => {
                   className="w-full max-w-md justify-start text-muted-foreground rounded-full"
                 >
                   <Search className="h-4 w-4 mr-2" />
-                  Find and track your bus...
+                  {t("find_bus")}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="p-0 w-[--radix-popover-trigger-width]" align="start">
                 <Command>
-                  <CommandInput 
-                    placeholder="Start typing to search for a route..." 
+                  <CommandInput
+                    placeholder={t("find_bus")}
                     value={searchQuery}
                     onValueChange={setSearchQuery}
                   />
@@ -107,13 +116,13 @@ const Navigation = () => {
                         ))}
                       </CommandGroup>
                     )}
-                    <CommandEmpty>No results found.</CommandEmpty>
+                    <CommandEmpty>{searchQuery ? "No results found." : "Start typing to search for a route."}</CommandEmpty>
                   </CommandList>
                 </Command>
               </PopoverContent>
             </Popover>
           </div>
-          
+
           <div className="flex items-center space-x-1">
             {navItems.map(({ to, icon: Icon, label }) => (
               <Button
@@ -129,6 +138,17 @@ const Navigation = () => {
                 </Link>
               </Button>
             ))}
+             <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Languages className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => changeLanguage("en")}>English</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => changeLanguage("hi")}>हिन्दी</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>

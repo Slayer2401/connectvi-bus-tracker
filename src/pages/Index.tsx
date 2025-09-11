@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Bus, MapPin, Clock, Zap, Shield, Users } from "lucide-react";
+import { Bus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { customBusRoutes, liveBuses } from "@/data/busData";
+import { useTranslation } from "react-i18next";
 
 const Index = () => {
+  const { t } = useTranslation();
   const activeBuses = liveBuses.length;
   const totalRoutes = customBusRoutes.length;
 
@@ -21,15 +21,14 @@ const Index = () => {
                 ConnectVI
               </h1>
               <p className="text-xl lg:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-                Track your bus in real-time with precise GPS location updates every 5 seconds. 
-                Never miss your ride again.
+                {t("tagline")}
               </p>
             </div>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
               <Button variant="hero" size="lg" asChild className="shadow-glow">
                 <Link to="/map">
-                  Track My Bus
+                  {t("track_my_bus")}
                 </Link>
               </Button>
             </div>
@@ -38,15 +37,15 @@ const Index = () => {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-md mx-auto">
               <div className="text-center">
                 <div className="text-2xl font-bold text-bus-live">{activeBuses}</div>
-                <div className="text-sm text-muted-foreground">Live Buses</div>
+                <div className="text-sm text-muted-foreground">{t("live_buses")}</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-primary">{totalRoutes}</div>
-                <div className="text-sm text-muted-foreground">Routes</div>
+                <div className="text-sm text-muted-foreground">{t("routes")}</div>
               </div>
               <div className="text-center col-span-2 md:col-span-1">
                 <div className="text-2xl font-bold text-stop-marker">5s</div>
-                <div className="text-sm text-muted-foreground">Updates</div>
+                <div className="text-sm text-muted-foreground">{t("updates")}</div>
               </div>
             </div>
           </div>

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet";
 import { LatLngExpression, Icon } from "leaflet";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,22 +39,22 @@ const Map = () => {
   const [searchParams] = useSearchParams();
   const routeFilter = searchParams.get("route");
   const fromStop = searchParams.get("from");
-
+  const { t } = useTranslation();
   const [buses, setBuses] = useState<Bus[]>(liveBuses);
   const [mapType, setMapType] = useState<"light" | "dark" | "satellite">("light");
-  
+
   const selectedRoute = routeFilter 
     ? customBusRoutes.find(route => route.id === routeFilter)
     : null;
-    
+
   const filteredBuses = routeFilter 
     ? buses.filter(bus => bus.routeId === routeFilter)
     : buses;
-    
+
   const getRouteInfo = (routeId: string) => {
     return customBusRoutes.find(route => route.id === routeId);
   };
-  
+
   // Simulate live bus updates
   useEffect(() => {
     const interval = setInterval(() => {
@@ -77,10 +78,10 @@ const Map = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-4 bg-gradient-button bg-clip-text text-transparent">
-            {selectedRoute ? `${fromStop ? `${fromStop} - ${selectedRoute.endPoint}` : selectedRoute.name} - Live Map` : "Live Bus Tracking"}
+            {selectedRoute ? `${fromStop ? `${fromStop} - ${selectedRoute.endPoint}` : selectedRoute.name} - ${t("live_map")}` : t("live_bus_tracking")}
           </h1>
           <p className="text-muted-foreground">
-            Real-time bus positions updated every 5 seconds
+            {t("tagline")}
           </p>
         </div>
 
@@ -91,7 +92,7 @@ const Map = () => {
               <CardHeader>
                 <CardTitle className="flex items-center text-bus-live">
                   <Navigation className="w-5 h-5 mr-2" />
-                  Live Buses ({filteredBuses.length})
+                  {t("live_buses")} ({filteredBuses.length})
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 max-h-[250px] overflow-y-auto">
@@ -111,7 +112,7 @@ const Map = () => {
                       <div className="text-sm space-y-1">
                         <div className="flex items-center text-muted-foreground">
                           <MapPin className="w-3 h-3 mr-1" />
-                          Next: {nextStop?.name}
+                          {t("next_stop")}: {nextStop?.name}
                         </div>
                         <div className="flex items-center text-muted-foreground">
                           <Clock className="w-3 h-3 mr-1" />
@@ -129,16 +130,16 @@ const Map = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Clock className="w-5 h-5 mr-2" />
-                    Bus Schedule
+                    {t("bus_schedule")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="max-h-[250px] overflow-y-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>From</TableHead>
-                        <TableHead>Departure</TableHead>
-                        <TableHead>Arrival</TableHead>
+                        <TableHead>{t("from")}</TableHead>
+                        <TableHead>{t("departure")}</TableHead>
+                        <TableHead>{t("arrival")}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -167,9 +168,9 @@ const Map = () => {
                 }}
                 className="justify-start"
               >
-                <ToggleGroupItem value="light">Light</ToggleGroupItem>
-                <ToggleGroupItem value="dark">Dark</ToggleGroupItem>
-                <ToggleGroupItem value="satellite">Satellite</ToggleGroupItem>
+                <ToggleGroupItem value="light">{t("light")}</ToggleGroupItem>
+                <ToggleGroupItem value="dark">{t("dark")}</ToggleGroupItem>
+                <ToggleGroupItem value="satellite">{t("satellite")}</ToggleGroupItem>
               </ToggleGroup>
             </div>
             <Card className="bg-gradient-card border-border shadow-card overflow-hidden">
@@ -180,7 +181,7 @@ const Map = () => {
                     url={currentTileLayer.url}
                     attribution={currentTileLayer.attribution}
                   />
-                  
+
                   {/* Display All Stops */}
                   {busStops.map(stop => (
                     <Marker key={stop.id} position={[stop.lat, stop.lng]}>
@@ -192,9 +193,9 @@ const Map = () => {
                   {(selectedRoute ? [selectedRoute] : customBusRoutes).map(route => {
                     const allStops = [route.startPoint, ...route.intermediateStops, route.endPoint];
                     const startIndex = fromStop ? allStops.indexOf(fromStop) : 0;
-                    
+
                     const routeSegment = startIndex !== -1 ? allStops.slice(startIndex) : allStops;
-                    
+
                     const positions = routeSegment
                       .map(stopName => busStops.find(s => s.name === stopName))
                       .filter(Boolean)

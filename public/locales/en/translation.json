@@ -1,0 +1,19 @@
+{
+  "find_bus": "Find and track your bus...",
+  "home": "Home",
+  "live_map": "Live Map",
+  "live_bus_tracking": "Live Bus Tracking",
+  "tagline": "Real-time bus positions updated every 5 seconds",
+  "track_my_bus": "Track My Bus",
+  "live_buses": "Live Buses",
+  "routes": "Routes",
+  "updates": "Updates",
+  "bus_schedule": "Bus Schedule",
+  "from": "From",
+  "departure": "Departure",
+  "arrival": "Arrival",
+  "light": "Light",
+  "dark": "Dark",
+  "satellite": "Satellite",
+  "next_stop": "Next"
+}
