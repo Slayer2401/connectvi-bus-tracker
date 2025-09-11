@@ -7,6 +7,7 @@ import Navigation from "./components/Navigation";
 import Index from "./pages/Index";
 import Map from "./pages/Map";
 import NotFound from "./pages/NotFound";
+import Chatbot from "./components/Chatbot"; // Import the chatbot
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <Chatbot /> {/* Add the chatbot component here */}
         </div>
       </BrowserRouter>
     </TooltipProvider>
