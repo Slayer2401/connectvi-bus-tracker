@@ -39,22 +39,28 @@ const Map = () => {
   const [searchParams] = useSearchParams();
   const routeFilter = searchParams.get("route");
   const fromStop = searchParams.get("from");
+  const toStop = searchParams.get("to");
   const { t } = useTranslation();
   const [buses, setBuses] = useState<Bus[]>(liveBuses);
   const [mapType, setMapType] = useState<"light" | "dark" | "satellite">("light");
-
-  const selectedRoute = routeFilter 
-    ? customBusRoutes.find(route => route.id === routeFilter)
-    : null;
-
-  const filteredBuses = routeFilter 
-    ? buses.filter(bus => bus.routeId === routeFilter)
+  
+  const selectedRoutes = routeFilter 
+    ? customBusRoutes.filter(route => route.id === routeFilter)
+    : (fromStop && toStop)
+    ? customBusRoutes.filter(route => {
+        const routeStops = [route.startPoint, ...route.intermediateStops, route.endPoint];
+        return routeStops.includes(fromStop) && routeStops.includes(toStop);
+    })
+    : customBusRoutes;
+    
+  const filteredBuses = selectedRoutes.length < customBusRoutes.length
+    ? buses.filter(bus => selectedRoutes.some(route => route.id === bus.routeId))
     : buses;
-
+    
   const getRouteInfo = (routeId: string) => {
     return customBusRoutes.find(route => route.id === routeId);
   };
-
+  
   // Simulate live bus updates
   useEffect(() => {
     const interval = setInterval(() => {
@@ -78,7 +84,7 @@ const Map = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-4 bg-gradient-button bg-clip-text text-transparent">
-            {selectedRoute ? `${fromStop ? `${fromStop} - ${selectedRoute.endPoint}` : selectedRoute.name} - ${t("live_map")}` : t("live_bus_tracking")}
+            {fromStop && toStop ? `Routes from ${fromStop} to ${toStop}` : "Live Bus Tracking"}
           </h1>
           <p className="text-muted-foreground">
             {t("tagline")}
@@ -92,7 +98,7 @@ const Map = () => {
               <CardHeader>
                 <CardTitle className="flex items-center text-bus-live">
                   <Navigation className="w-5 h-5 mr-2" />
-                  {t("live_buses")} ({filteredBuses.length})
+                  Live Buses ({filteredBuses.length})
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 max-h-[250px] overflow-y-auto">
@@ -121,11 +127,11 @@ const Map = () => {
                       </div>
                     </div>
                   );
-                }) : <p className="text-muted-foreground text-sm">No live buses on this route.</p>}
+                }) : <p className="text-muted-foreground text-sm">No live buses found.</p>}
               </CardContent>
             </Card>
 
-            {selectedRoute && (
+            {selectedRoutes.length === 1 && (
               <Card className="bg-gradient-card border-border shadow-card">
                 <CardHeader>
                   <CardTitle className="flex items-center">
@@ -143,7 +149,7 @@ const Map = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {selectedRoute.timings.map((timing, index) => (
+                      {selectedRoutes[0].timings.map((timing, index) => (
                         <TableRow key={index}>
                           <TableCell>{timing.from}</TableCell>
                           <TableCell>{timing.departure}</TableCell>
@@ -181,7 +187,7 @@ const Map = () => {
                     url={currentTileLayer.url}
                     attribution={currentTileLayer.attribution}
                   />
-
+                  
                   {/* Display All Stops */}
                   {busStops.map(stop => (
                     <Marker key={stop.id} position={[stop.lat, stop.lng]}>
@@ -190,12 +196,12 @@ const Map = () => {
                   ))}
 
                   {/* Display Routes */}
-                  {(selectedRoute ? [selectedRoute] : customBusRoutes).map(route => {
+                  {selectedRoutes.map(route => {
                     const allStops = [route.startPoint, ...route.intermediateStops, route.endPoint];
                     const startIndex = fromStop ? allStops.indexOf(fromStop) : 0;
-
+                    
                     const routeSegment = startIndex !== -1 ? allStops.slice(startIndex) : allStops;
-
+                    
                     const positions = routeSegment
                       .map(stopName => busStops.find(s => s.name === stopName))
                       .filter(Boolean)
