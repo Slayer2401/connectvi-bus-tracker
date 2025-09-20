@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Search, ArrowRightLeft } from "lucide-react";
+import { Search, ArrowRightLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { busStops } from "@/data/busData";
@@ -17,6 +17,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Card } from "@/components/ui/card";
 
 const RouteFinder = () => {
   const [fromStation, setFromStation] = useState("");
@@ -40,14 +41,18 @@ const RouteFinder = () => {
     return (
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Input
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            placeholder={placeholder}
-            className="rounded-full"
-          />
+          <div className="relative">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-semibold text-muted-foreground">{placeholder}</span>
+            <Input
+              value={value}
+              onInput={(e) => setValue((e.target as HTMLInputElement).value)}
+              onClick={() => setOpen(true)}
+              placeholder="..."
+              className="rounded-full pl-12 text-md"
+            />
+          </div>
         </PopoverTrigger>
-        <PopoverContent className="p-0" align="start">
+        <PopoverContent className="p-0 w-[--radix-popover-trigger-width]" align="start">
           <Command>
             <CommandInput placeholder="Search for a stop..." />
             <CommandList>
@@ -58,7 +63,8 @@ const RouteFinder = () => {
                     key={stop.id}
                     value={stop.name}
                     onSelect={(currentValue) => {
-                      setValue(currentValue);
+                      const capitalizedValue = currentValue.charAt(0).toUpperCase() + currentValue.slice(1);
+                      setValue(capitalizedValue);
                       setOpen(false);
                     }}
                   >
@@ -75,26 +81,28 @@ const RouteFinder = () => {
 
 
   return (
-    <Card className="p-4 sm:p-6 bg-card/80 backdrop-blur-sm border-border max-w-2xl mx-auto">
+    <Card className="p-4 sm:p-6 bg-card/80 backdrop-blur-sm border-border max-w-2xl mx-auto rounded-2xl">
       <div className="flex flex-col sm:flex-row items-center gap-2">
         <div className="w-full sm:w-2/5">
-          <StationInput value={fromStation} setValue={setFromStation} placeholder="From Station" />
+          <StationInput value={fromStation} setValue={setFromStation} placeholder="From" />
         </div>
         
-        <Button variant="ghost" size="icon" onClick={handleSwap} className="hidden sm:inline-flex">
+        <Button variant="ghost" size="icon" onClick={handleSwap} className="hidden sm:inline-flex rounded-full">
           <ArrowRightLeft className="h-4 w-4" />
         </Button>
         <div className="w-full sm:hidden text-center my-2">
-            <ArrowRightLeft className="h-4 w-4 inline-block rotate-90" />
+            <Button variant="ghost" size="icon" onClick={handleSwap} className="rounded-full">
+                <ArrowRightLeft className="h-4 w-4 rotate-90" />
+            </Button>
         </div>
 
         <div className="w-full sm:w-2/5">
-          <StationInput value={toStation} setValue={setToStation} placeholder="To Station" />
+          <StationInput value={toStation} setValue={setToStation} placeholder="To" />
         </div>
         <div className="w-full sm:w-1/5">
-          <Button onClick={handleSearch} className="w-full rounded-full">
-            <Search className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Find Buses</span>
+          <Button onClick={handleSearch} className="w-full rounded-full bg-green-600 hover:bg-green-700 text-white">
+            <span className="sm:hidden">Find Buses</span>
+            <Search className="h-4 w-4 hidden sm:inline-block" />
           </Button>
         </div>
       </div>
@@ -102,6 +110,4 @@ const RouteFinder = () => {
   );
 };
 
-// Need to add Card to the import list
-import { Card } from "@/components/ui/card";
 export default RouteFinder;

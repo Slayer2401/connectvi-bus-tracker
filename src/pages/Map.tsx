@@ -5,13 +5,14 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet"
 import { LatLngExpression, Icon } from "leaflet";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, MapPin, Navigation } from "lucide-react";
+import { Clock, MapPin, Navigation, Bus as BusIcon } from "lucide-react";
 import { busStops, customBusRoutes, liveBuses, Bus } from "@/data/busData";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 // Custom icon for the live bus markers
-const busIcon = new Icon({
+const busMarkerIcon = new Icon({
   iconUrl: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1idXMiPjxwYXRoIGQ9Ik04IDhINEMyLjkgOCAyIDkgMiAxMHYxMGEyIDIgMCAwIDAgMiAyaDEwYTIgMiAwIDAgMCAyLTJWMTAwIDAgMCAwIDE4IDEwdi0yaC00WiIgLz48cGFhdGggZD0iTTE4IDIwaDRhMSAxIDAgMCAwIDEtMXYtM2ExIDEgMCAwIDAtMS0xaC00WiIgLz48Y2lyY2xlIGN4PSI2IiBjeT0iMTgiIHI9IjIiIC8+PGNpcmNsZSBjeD0iMTgiIGN5PSIxOCIgcj0iMiIgLz48cGFhdGggZD0iTSA0IDEySDIwIiAvPjwvc3ZnPg==',
   iconSize: [32, 32],
   iconAnchor: [16, 16],
@@ -49,13 +50,15 @@ const Map = () => {
     : (fromStop && toStop)
     ? customBusRoutes.filter(route => {
         const routeStops = [route.startPoint, ...route.intermediateStops, route.endPoint];
-        return routeStops.includes(fromStop) && routeStops.includes(toStop);
+        const fromIndex = routeStops.findIndex(s => s.toLowerCase() === fromStop.toLowerCase());
+        const toIndex = routeStops.findIndex(s => s.toLowerCase() === toStop.toLowerCase());
+        return fromIndex !== -1 && toIndex !== -1 && fromIndex < toIndex;
     })
-    : customBusRoutes;
+    : [];
     
-  const filteredBuses = selectedRoutes.length < customBusRoutes.length
+  const filteredBuses = selectedRoutes.length > 0
     ? buses.filter(bus => selectedRoutes.some(route => route.id === bus.routeId))
-    : buses;
+    : [];
     
   const getRouteInfo = (routeId: string) => {
     return customBusRoutes.find(route => route.id === routeId);
@@ -94,7 +97,33 @@ const Map = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Side Panel */}
           <div className="lg:col-span-1 space-y-4">
-            <Card className="bg-gradient-card border-border shadow-card">
+            {selectedRoutes.length > 0 ? (
+                 <Card className="bg-gradient-card border-border shadow-card">
+                 <CardHeader>
+                   <CardTitle className="flex items-center text-bus-live">
+                     <BusIcon className="w-5 h-5 mr-2" />
+                     Route Timeline
+                   </CardTitle>
+                 </CardHeader>
+                 <CardContent className="space-y-3 max-h-[500px] overflow-y-auto">
+                   <div className="relative pl-6">
+                     {selectedRoutes.flatMap(route => {
+                        const allStops = [route.startPoint, ...route.intermediateStops, route.endPoint];
+                        const startIndex = fromStop ? allStops.map(s => s.toLowerCase()).indexOf(fromStop.toLowerCase()) : 0;
+                        return (startIndex !== -1 ? allStops.slice(startIndex) : []);
+                     }).filter((value, index, self) => self.indexOf(value) === index)
+                     .map((stopName, index) => (
+                       <div key={stopName} className="relative pb-8">
+                         <div className="absolute left-[-1px] top-1 h-full w-0.5 bg-primary/50"></div>
+                         <div className={cn("absolute left-[-6px] top-1 h-3 w-3 rounded-full", index === 0 ? "bg-green-500 animate-pulse" : "bg-primary/50")}></div>
+                         <p className="font-semibold">{stopName}</p>
+                       </div>
+                     ))}
+                   </div>
+                 </CardContent>
+               </Card>
+            ): (
+              <Card className="bg-gradient-card border-border shadow-card">
               <CardHeader>
                 <CardTitle className="flex items-center text-bus-live">
                   <Navigation className="w-5 h-5 mr-2" />
@@ -127,40 +156,11 @@ const Map = () => {
                       </div>
                     </div>
                   );
-                }) : <p className="text-muted-foreground text-sm">No live buses found.</p>}
+                }) : <p className="text-muted-foreground text-sm">No live buses found for this route.</p>}
               </CardContent>
             </Card>
-
-            {selectedRoutes.length === 1 && (
-              <Card className="bg-gradient-card border-border shadow-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Clock className="w-5 h-5 mr-2" />
-                    {t("bus_schedule")}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="max-h-[250px] overflow-y-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>{t("from")}</TableHead>
-                        <TableHead>{t("departure")}</TableHead>
-                        <TableHead>{t("arrival")}</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {selectedRoutes[0].timings.map((timing, index) => (
-                        <TableRow key={index}>
-                          <TableCell>{timing.from}</TableCell>
-                          <TableCell>{timing.departure}</TableCell>
-                          <TableCell>{timing.arrival}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
             )}
+           
           </div>
 
           {/* Map */}
@@ -198,9 +198,10 @@ const Map = () => {
                   {/* Display Routes */}
                   {selectedRoutes.map(route => {
                     const allStops = [route.startPoint, ...route.intermediateStops, route.endPoint];
-                    const startIndex = fromStop ? allStops.indexOf(fromStop) : 0;
+                    const startIndex = fromStop ? allStops.map(s => s.toLowerCase()).indexOf(fromStop.toLowerCase()) : 0;
+                    const endIndex = toStop ? allStops.map(s => s.toLowerCase()).indexOf(toStop.toLowerCase()) : allStops.length - 1;
                     
-                    const routeSegment = startIndex !== -1 ? allStops.slice(startIndex) : allStops;
+                    const routeSegment = (startIndex !== -1 && endIndex !== -1) ? allStops.slice(startIndex, endIndex + 1) : [];
                     
                     const positions = routeSegment
                       .map(stopName => busStops.find(s => s.name === stopName))
@@ -212,7 +213,7 @@ const Map = () => {
 
                   {/* Display Live Buses */}
                   {filteredBuses.map(bus => (
-                    <Marker key={bus.id} position={[bus.lat, bus.lng]} icon={busIcon}>
+                    <Marker key={bus.id} position={[bus.lat, bus.lng]} icon={busMarkerIcon}>
                       <Popup>
                         <strong>{getRouteInfo(bus.routeId)?.name}</strong>
                       </Popup>

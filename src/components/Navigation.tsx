@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { Bus, Map as MapIcon, Route, Search, Languages } from "lucide-react";
+import { Bus, Map as MapIcon, Route, Search, Languages, LogIn, LogOut } from "lucide-react";
 import {
   Command,
   CommandEmpty,
@@ -24,7 +24,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { customBusRoutes } from "@/data/busData";
 
-const Navigation = () => {
+interface NavigationProps {
+  isLoggedIn: boolean;
+  onLogout: () => void;
+}
+
+const Navigation = ({ isLoggedIn, onLogout }: NavigationProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
@@ -37,7 +42,7 @@ const Navigation = () => {
 
   const handleSelectRoute = (routeId: string, customName?: string) => {
     setOpen(false);
-    const routePath = customName
+    const routePath = customName 
       ? `/map?route=${routeId}&from=${encodeURIComponent(customName.split(' - ')[0])}`
       : `/map?route=${routeId}`;
     navigate(routePath);
@@ -122,7 +127,7 @@ const Navigation = () => {
               </PopoverContent>
             </Popover>
           </div>
-
+          
           <div className="flex items-center space-x-1">
             {navItems.map(({ to, icon: Icon, label }) => (
               <Button
@@ -138,7 +143,22 @@ const Navigation = () => {
                 </Link>
               </Button>
             ))}
-             <DropdownMenu>
+
+            {isLoggedIn ? (
+              <Button variant="ghost" size="sm" onClick={onLogout}>
+                <LogOut className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Logout</span>
+              </Button>
+            ) : (
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/login">
+                  <LogIn className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Login</span>
+                </Link>
+              </Button>
+            )}
+
+            <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
                   <Languages className="h-5 w-5" />

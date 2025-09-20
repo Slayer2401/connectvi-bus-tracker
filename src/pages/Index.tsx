@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Bus } from "lucide-react";
-import { Link } from "react-router-dom";
 import { customBusRoutes, liveBuses } from "@/data/busData";
 import { useTranslation } from "react-i18next";
-import RouteFinder from "@/components/RouteFinder"; // Import the new component
+import RouteFinder from "@/components/RouteFinder";
+import Chatbot from "@/components/Chatbot"; // Import the chatbot component
 
 const Index = () => {
   const { t } = useTranslation();
@@ -26,7 +26,7 @@ const Index = () => {
               </p>
             </div>
             
-            <RouteFinder /> {/* Add the new component here */}
+            <RouteFinder />
 
             {/* Live Stats */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-md mx-auto mt-12">
@@ -46,6 +46,8 @@ const Index = () => {
           </div>
         </div>
       </section>
+      
+      <Chatbot /> {/* Add the chatbot to the homepage */}
     </div>
   );
 };
