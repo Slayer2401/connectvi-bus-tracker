@@ -3,6 +3,7 @@ import { Bus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { customBusRoutes, liveBuses } from "@/data/busData";
 import { useTranslation } from "react-i18next";
+import RouteFinder from "@/components/RouteFinder"; // Import the new component
 
 const Index = () => {
   const { t } = useTranslation();
@@ -24,17 +25,11 @@ const Index = () => {
                 {t("tagline")}
               </p>
             </div>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Button variant="hero" size="lg" asChild className="shadow-glow">
-                <Link to="/map">
-                  {t("track_my_bus")}
-                </Link>
-              </Button>
-            </div>
+            
+            <RouteFinder /> {/* Add the new component here */}
 
             {/* Live Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-md mx-auto">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-md mx-auto mt-12">
               <div className="text-center">
                 <div className="text-2xl font-bold text-bus-live">{activeBuses}</div>
                 <div className="text-sm text-muted-foreground">{t("live_buses")}</div>
