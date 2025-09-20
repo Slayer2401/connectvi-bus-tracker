@@ -1,9 +1,8 @@
-import { Button } from "@/components/ui/button";
 import { Bus } from "lucide-react";
 import { customBusRoutes, liveBuses } from "@/data/busData";
 import { useTranslation } from "react-i18next";
 import RouteFinder from "@/components/RouteFinder";
-import Chatbot from "@/components/Chatbot"; // Import the chatbot component
+import Chatbot from "@/components/Chatbot"; // Re-import the chatbot component
 
 const Index = () => {
   const { t } = useTranslation();
@@ -46,8 +45,7 @@ const Index = () => {
           </div>
         </div>
       </section>
-      
-      <Chatbot /> {/* Add the chatbot to the homepage */}
+      <Chatbot /> {/* Add the chatbot back to the homepage */}
     </div>
   );
 };

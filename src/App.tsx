@@ -32,7 +32,7 @@ const App = () => {
               <Route path="/login" element={<Login onLogin={handleLogin} />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
-            {/* The Chatbot component has been removed from here */}
+            {/* Chatbot is correctly removed from here */}
           </div>
         </BrowserRouter>
       </TooltipProvider>

@@ -1,28 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { Bus, Map as MapIcon, Route, Search, Languages, LogIn, LogOut } from "lucide-react";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Bus, Map as MapIcon, Languages, LogIn, LogOut } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { customBusRoutes } from "@/data/busData";
 
 interface NavigationProps {
   isLoggedIn: boolean;
@@ -31,46 +17,10 @@ interface NavigationProps {
 
 const Navigation = ({ isLoggedIn, onLogout }: NavigationProps) => {
   const location = useLocation();
-  const navigate = useNavigate();
   const { t, i18n } = useTranslation();
-  const [open, setOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
-  };
-
-  const handleSelectRoute = (routeId: string, customName?: string) => {
-    setOpen(false);
-    const routePath = customName 
-      ? `/map?route=${routeId}&from=${encodeURIComponent(customName.split(' - ')[0])}`
-      : `/map?route=${routeId}`;
-    navigate(routePath);
-  };
-
-  const getFilteredRoutes = () => {
-    if (!searchQuery) return [];
-
-    const lowercasedQuery = searchQuery.toLowerCase();
-    const results = new Map<string, { id: string; name: string }>();
-
-    customBusRoutes.forEach(route => {
-      if (
-        route.name.toLowerCase().includes(lowercasedQuery) ||
-        route.startPoint.toLowerCase().includes(lowercasedQuery) ||
-        route.endPoint.toLowerCase().includes(lowercasedQuery)
-      ) {
-        results.set(route.id, { id: route.id, name: route.name });
-      }
-      route.intermediateStops.forEach(stop => {
-        if (stop.toLowerCase().includes(lowercasedQuery)) {
-          const dynamicRouteName = `${stop} - ${route.endPoint}`;
-          results.set(`${route.id}-${stop}`, { id: route.id, name: dynamicRouteName });
-        }
-      });
-    });
-
-    return Array.from(results.values());
   };
 
   const navItems = [
@@ -88,45 +38,6 @@ const Navigation = ({ isLoggedIn, onLogout }: NavigationProps) => {
               ConnectVI
             </span>
           </Link>
-
-          <div className="flex-1 flex justify-center px-4">
-            <Popover open={open} onOpenChange={setOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full max-w-md justify-start text-muted-foreground rounded-full"
-                >
-                  <Search className="h-4 w-4 mr-2" />
-                  {t("find_bus")}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="p-0 w-[--radix-popover-trigger-width]" align="start">
-                <Command>
-                  <CommandInput
-                    placeholder={t("find_bus")}
-                    value={searchQuery}
-                    onValueChange={setSearchQuery}
-                  />
-                  <CommandList>
-                    {searchQuery && (
-                      <CommandGroup heading="Suggestions">
-                        {getFilteredRoutes().map((route) => (
-                          <CommandItem
-                            key={route.name}
-                            onSelect={() => handleSelectRoute(route.id, route.name)}
-                          >
-                            <Route className="mr-2 h-4 w-4" />
-                            <span>{route.name}</span>
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    )}
-                    <CommandEmpty>{searchQuery ? "No results found." : "Start typing to search for a route."}</CommandEmpty>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-          </div>
           
           <div className="flex items-center space-x-1">
             {navItems.map(({ to, icon: Icon, label }) => (
